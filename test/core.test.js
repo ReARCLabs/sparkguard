@@ -160,3 +160,22 @@ test('mv snapshots both source and destination, undo restores the source', async
   assert.deepStrictEqual(u.removed, ['b.txt']);
   assert.strictEqual(fs.readFileSync(path.join(r4, 'a.txt'), 'utf8'), 'A');
 });
+
+test('bypass routes: inline code, nested shell and MCP writes are guarded (offline)', async () => {
+  const r5 = path.join(tmp, 'bypass');
+  fs.mkdirSync(path.join(r5, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(r5, 'data', 'exports'), { recursive: true });
+  await userPromptSubmit({ prompt: 'Never delete anything in data/exports.', cwd: r5, session_id: 's-b' });
+  const run = (tool, input) => preToolUse({ tool_name: tool, tool_input: input, cwd: r5, session_id: 's-b', tool_use_id: `b${Math.random()}` });
+  for (const c of [
+    "python3 -c \"import shutil; shutil.rmtree('data/exports')\"",
+    "node -e \"require('fs').rmSync('data/exports',{recursive:true})\"",
+    "bash -c 'rm -rf data/exports'",
+    "sh -c \"find data/exports -delete\"",
+  ]) assert.ok(denied(await run('bash', { command: c })), c);
+  assert.ok(denied(await run('mcp__fs__delete_file', { path: 'data/exports/q1.csv' })), 'mcp delete');
+  // harmless code and reads stay allowed
+  assert.deepStrictEqual(await run('bash', { command: "python3 -c \"print(len(open('data/exports/q1.csv').read()))\"" }), {});
+  assert.deepStrictEqual(await run('bash', { command: "node -e \"console.log(1+1)\"" }), {});
+  assert.deepStrictEqual(await run('mcp__fs__read_file', { path: 'data/exports/q1.csv' }), {});
+});
