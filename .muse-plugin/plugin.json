@@ -24,6 +24,16 @@
     ],
     "hooks": [
       {
+        "id": "sync",
+        "event": "SessionStart",
+        "command": [
+          "node",
+          "bin/session-start.js"
+        ],
+        "timeoutMs": 5000,
+        "statusMessage": "Said No: syncing your rules"
+      },
+      {
         "id": "capture",
         "event": "UserPromptSubmit",
         "command": [

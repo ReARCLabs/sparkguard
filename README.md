@@ -28,7 +28,7 @@ Pattern guards stop `rm -rf`. None of them know what *you* said.
 | Something is denied | The agent gets your sentence, the date and the rule id, plus a read-only `said_no_rules` tool to verify it came from you. It reports back instead of working around it. You can reply `override r1` to allow one call. | |
 | A write is allowed | The files it will touch are snapshotted first (new files are recorded as absent). `/undo` or `said-no undo` restores them. | |
 
-Every rule and every denial can be mirrored to [Bilinc](https://bilinc.space) (hosted, versioned memory) so you can see who decided what and when. The mirror is optional and never on the decision path.
+Every rule and every denial can be mirrored to [Bilinc](https://bilinc.space) (hosted, versioned memory) so you can see who decided what and when. With a Bilinc key, each session also pulls the repo's rules at start (~0.5 s), so a rule said on one machine applies on a teammate's machine and in CI. Rules are keyed by the repo's root commit, not its path; Muse Code's own memory is keyed by absolute path, so a fresh clone starts without it. The mirror is optional and never on the decision path.
 
 ## Install (local)
 
