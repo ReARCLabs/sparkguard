@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// said-no CLI: inspect rules and decisions, undo agent file changes.
+// sparkguard CLI: inspect rules and decisions, undo agent file changes.
 const fs = require('fs');
 const path = require('path');
 const store = require('../lib/store');
@@ -94,7 +94,7 @@ async function main() {
       return;
     }
     default:
-      console.log('usage: said-no rules [--all] | why <rule> | add "<sentence>" | forget <rule> | steps | undo [step] | decisions | budget');
+      console.log('usage: sparkguard rules [--all] | why <rule> | add "<sentence>" | forget <rule> | steps | undo [step] | decisions | budget');
   }
 }
 

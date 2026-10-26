@@ -6,9 +6,9 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'said-no-test-'));
-process.env.SAID_NO_CONFIG_DIR = path.join(tmp, 'config');
-process.env.SAID_NO_DATA_DIR = path.join(tmp, 'data');
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sparkguard-test-'));
+process.env.SPARKGUARD_CONFIG_DIR = path.join(tmp, 'config');
+process.env.SPARKGUARD_DATA_DIR = path.join(tmp, 'data');
 
 const match = require('../lib/match');
 const capture = require('../lib/capture');
@@ -78,7 +78,7 @@ test('end to end without a model: capture, deny with citation, allow + snapshot,
   const reason = d1.hookSpecificOutput.permissionDecisionReason;
   assert.match(reason, /you said "Never touch prisma\/migrations, ask me first\."/);
   assert.match(reason, /rule r1/);
-  assert.match(reason, /said_no_rules/);
+  assert.match(reason, /sparkguard_rules/);
 
   assert.ok(denied(await pre('bash', { command: 'rm prisma/migrations/0001_init.sql' })));
   assert.deepStrictEqual(await pre('bash', { command: 'ls prisma/migrations' }), {});

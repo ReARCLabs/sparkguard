@@ -1,9 +1,31 @@
 {
-  "name": "said-no",
+  "name": "sparkguard",
   "version": "0.1.0",
   "description": "Muse Code plugin: remembers the rules you tell your agent, blocks the call that would break one, quotes you back, and undoes file edits.",
-  "license": "UNLICENSED",
-  "private": true,
-  "engines": { "node": ">=18" },
-  "scripts": { "test": "node --test test/*.test.js" }
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "bin": {
+    "sparkguard": "bin/sparkguard.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ReARCLabs/sparkguard.git"
+  },
+  "homepage": "https://github.com/ReARCLabs/sparkguard",
+  "keywords": [
+    "muse-code",
+    "meta",
+    "coding-agent",
+    "guardrails",
+    "agent-safety",
+    "undo",
+    "memory",
+    "bilinc"
+  ],
+  "author": "ReARC Labs Inc."
 }

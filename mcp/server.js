@@ -10,22 +10,22 @@ const { projectRoot } = require('../lib/paths');
 
 const TOOLS = [
   {
-    name: 'said_no_rules',
-    description: 'List the standing rules the user stated to Said No for this project, each with the exact sentence, when it was said, and its scope. Read-only. Use this to verify a Said No denial before reporting it to the user.',
+    name: 'sparkguard_rules',
+    description: 'List the standing rules the user stated to Sparkguard for this project, each with the exact sentence, when it was said, and its scope. Read-only. Use this to verify a Sparkguard denial before reporting it to the user.',
     inputSchema: { type: 'object', properties: { cwd: { type: 'string', description: 'Absolute path of the current workspace.' } }, required: ['cwd'] },
-    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false, title: 'Said No rules' },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false, title: 'Sparkguard rules' },
   },
   {
-    name: 'said_no_steps',
-    description: 'List recent agent file changes Said No snapshotted for this project (step number, tool, summary). Read-only.',
+    name: 'sparkguard_steps',
+    description: 'List recent agent file changes Sparkguard snapshotted for this project (step number, tool, summary). Read-only.',
     inputSchema: { type: 'object', properties: { cwd: { type: 'string', description: 'Absolute path of the current workspace.' } }, required: ['cwd'] },
-    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false, title: 'Said No steps' },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false, title: 'Sparkguard steps' },
   },
   {
-    name: 'said_no_undo',
+    name: 'sparkguard_undo',
     description: 'Restore the files changed by one snapshotted step (default: the latest) to their state before that step. Only call this when the user asks to undo.',
     inputSchema: { type: 'object', properties: { step: { type: 'integer' }, cwd: { type: 'string', description: 'Absolute path of the current workspace.' } }, required: ['cwd'] },
-    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false, title: 'Said No undo' },
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false, title: 'Sparkguard undo' },
   },
 ];
 
@@ -33,17 +33,17 @@ function text(t) { return { content: [{ type: 'text', text: t }] }; }
 
 function call(name, args) {
   const root = projectRoot(args.cwd || process.env.MUSE_WORKSPACE || process.cwd());
-  if (name === 'said_no_rules') {
+  if (name === 'sparkguard_rules') {
     const rules = store.active(root);
-    if (!rules.length) return text(`No Said No rules on record for ${root}.`);
+    if (!rules.length) return text(`No Sparkguard rules on record for ${root}.`);
     return text(rules.map((r) => `${r.id} said ${r.said_at} in session ${r.session_id || '-'}: "${r.text}" | paths: ${r.paths.join(', ') || '-'} | commands: ${r.commands.join(', ') || '-'} | source: ${r.source}`).join('\n'));
   }
-  if (name === 'said_no_steps') {
+  if (name === 'sparkguard_steps') {
     const steps = snapshot.readSteps(root).slice(-15);
     if (!steps.length) return text('No snapshotted steps.');
     return text(steps.map((s) => `step ${s.step} ${s.at} ${s.tool} ${s.summary.slice(0, 100)}`).join('\n'));
   }
-  if (name === 'said_no_undo') {
+  if (name === 'sparkguard_undo') {
     const r = snapshot.undo(root, args.step);
     if (!r.ok) return { ...text(r.error), isError: true };
     return text(`Undid step ${r.step} (${r.tool}). Restored: ${r.restored.join(', ') || '-'}. Removed: ${r.removed.join(', ') || '-'}.`);
@@ -68,7 +68,7 @@ process.stdin.on('data', (chunk) => {
     if (id === undefined) continue; // notification
     try {
       if (method === 'initialize') {
-        reply(id, { protocolVersion: params?.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'said-no', version: require(path.join(__dirname, '..', 'package.json')).version } });
+        reply(id, { protocolVersion: params?.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'sparkguard', version: require(path.join(__dirname, '..', 'package.json')).version } });
       } else if (method === 'tools/list') reply(id, { tools: TOOLS });
       else if (method === 'tools/call') reply(id, call(params.name, params.arguments || {}));
       else if (method === 'ping') reply(id, {});

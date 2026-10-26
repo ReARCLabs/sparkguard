@@ -1,8 +1,8 @@
 #!/bin/sh
-# Builds a fresh demo workspace and clears Said No state for it, so the demo
+# Builds a fresh demo workspace and clears Sparkguard state for it, so the demo
 # starts from zero every time. Usage: scripts/demo-setup.sh [dir]
 set -eu
-DIR="${1:-$HOME/said-no-demo}"
+DIR="${1:-$HOME/sparkguard-demo}"
 rm -rf "$DIR"
 mkdir -p "$DIR/prisma/migrations" "$DIR/src"
 cd "$DIR"
@@ -18,8 +18,8 @@ export function add(a, b) {
   return a - b; // bug: should be a + b
 }
 JS
-printf '# acme-billing\nDemo workspace for Said No.\n' > README.md
+printf '# acme-billing\nDemo workspace for Sparkguard.\n' > README.md
 git init -q && git add -A && git -c user.name=demo -c user.email=demo@example.com commit -qm "initial"
 # forget any rules and snapshots from earlier demo runs of this path
-node "$(dirname "$0")/../bin/said-no.js" reset-project >/dev/null 2>&1 || true
+node "$(dirname "$0")/../bin/sparkguard.js" reset-project >/dev/null 2>&1 || true
 echo "demo workspace ready: $DIR"

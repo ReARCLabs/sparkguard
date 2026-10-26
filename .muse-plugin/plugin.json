@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "name": "said-no",
-  "displayName": "Said No",
+  "name": "sparkguard",
+  "displayName": "Sparkguard",
   "version": "0.1.0",
   "description": "Remembers the rules you tell Muse Code, blocks the tool call that would break one and quotes you back, and undoes agent file edits.",
   "compat": {
@@ -31,7 +31,7 @@
           "bin/session-start.js"
         ],
         "timeoutMs": 5000,
-        "statusMessage": "Said No: syncing your rules"
+        "statusMessage": "Sparkguard: syncing your rules"
       },
       {
         "id": "capture",
@@ -41,7 +41,7 @@
           "bin/user-prompt-submit.js"
         ],
         "timeoutMs": 9000,
-        "statusMessage": "Said No: checking for rules"
+        "statusMessage": "Sparkguard: checking for rules"
       },
       {
         "id": "guard",
@@ -51,12 +51,12 @@
           "bin/pre-tool-use.js"
         ],
         "timeoutMs": 9000,
-        "statusMessage": "Said No: checking your rules"
+        "statusMessage": "Sparkguard: checking your rules"
       }
     ],
     "mcpServers": [
       {
-        "id": "said-no",
+        "id": "sparkguard",
         "transport": "stdio",
         "command": [
           "node",
