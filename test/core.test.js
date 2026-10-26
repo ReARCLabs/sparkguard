@@ -115,3 +115,19 @@ test('rules are per project', async () => {
   assert.strictEqual(store.active(other).length, 1);
   assert.strictEqual(store.active(repo).length, 0);
 });
+
+test('a clone of the same repo shares rules (root-commit identity)', async () => {
+  const { execFileSync } = require('child_process');
+  const a = path.join(tmp, 'orig');
+  fs.mkdirSync(path.join(a, 'data'), { recursive: true });
+  fs.writeFileSync(path.join(a, 'data', 'clients.csv'), 'x\n');
+  const git = (cwd, ...args) => execFileSync('git', args, { cwd, stdio: 'ignore' });
+  git(a, 'init', '-q');
+  git(a, '-c', 'user.name=t', '-c', 'user.email=t@t', 'add', '-A');
+  git(a, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'init');
+  const b = path.join(tmp, 'clone');
+  git(tmp, 'clone', '-q', a, b);
+  await userPromptSubmit({ prompt: 'Never delete anything in data/.', cwd: a, session_id: 's-a' });
+  const r = await preToolUse({ tool_name: 'bash', tool_input: { command: 'rm data/clients.csv' }, cwd: b, session_id: 's-b', tool_use_id: 'x' });
+  assert.ok(denied(r), 'rule said in the original checkout applies in the clone');
+});

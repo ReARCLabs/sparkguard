@@ -2,7 +2,7 @@
   "name": "said-no",
   "version": "0.1.0",
   "description": "Muse Code plugin: remembers the rules you tell your agent, blocks the call that would break one, quotes you back, and undoes file edits.",
-  "license": "Apache-2.0",
+  "license": "UNLICENSED",
   "private": true,
   "engines": { "node": ">=18" },
   "scripts": { "test": "node --test test/*.test.js" }

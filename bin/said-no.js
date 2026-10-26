@@ -6,7 +6,7 @@ const path = require('path');
 const store = require('../lib/store');
 const snapshot = require('../lib/snapshot');
 const model = require('../lib/model');
-const { projectRoot, projectDataDir } = require('../lib/paths');
+const { projectRoot, projectDataDir, repoKey } = require('../lib/paths');
 const { fmtDate } = require('../lib/decide');
 const capture = require('../lib/capture');
 
@@ -25,7 +25,7 @@ function showRule(r) {
     r.commands.length ? `commands: ${r.commands.join(', ')}` : null,
     r.keywords.length ? `keywords: ${r.keywords.join(', ')}` : null,
   ].filter(Boolean).join(' | ');
-  return `${r.id}  ${fmtDate(r.said_at)}  "${r.text}"\n     ${scope || '(no scope)'}  [source: ${r.source}, session ${String(r.session_id || '-').slice(0, 8)}, via ${r.extractor}]`;
+  return `${r.id}  ${fmtDate(r.said_at, r.tz)}  "${r.text}"\n     ${scope || '(no scope)'}  [source: ${r.source}, session ${String(r.session_id || '-').slice(0, 8)}, via ${r.extractor}]`;
 }
 
 async function main() {
@@ -38,7 +38,7 @@ async function main() {
     }
     case 'why': {
       const id = args[0];
-      const rule = store.load().rules.find((r) => r.id === id);
+      const rule = store.active(root).concat(store.load().rules.filter((r) => r.forgotten && (r.project === repoKey(root) || r.project === root))).find((r) => r.id === id);
       if (!rule) { console.log(`No rule ${id}.`); return; }
       console.log(showRule(rule));
       const ds = decisions().filter((d) => d.rule === id);
@@ -55,7 +55,7 @@ async function main() {
       return;
     }
     case 'forget': {
-      const r = store.forget(args[0]);
+      const r = store.forget(args[0], root);
       console.log(r ? `Forgot ${r.id}: "${r.text}"` : `No active rule ${args[0]}.`);
       return;
     }
@@ -80,6 +80,17 @@ async function main() {
     }
     case 'budget': {
       console.log(JSON.stringify(model.budget(), null, 2));
+      return;
+    }
+    case 'reset-project': {
+      // Demo helper: drop this project's rules, snapshots and ledger.
+      const data = store.load();
+      const before = data.rules.length;
+      const key = repoKey(root);
+      data.rules = data.rules.filter((r) => r.project !== root && r.project !== key);
+      fs.writeFileSync(store.RULES_FILE(), JSON.stringify(data, null, 2), { mode: 0o600 });
+      fs.rmSync(projectDataDir(root), { recursive: true, force: true });
+      console.log(`Reset ${root}: removed ${before - data.rules.length} rule(s), snapshots and decisions.`);
       return;
     }
     default:
