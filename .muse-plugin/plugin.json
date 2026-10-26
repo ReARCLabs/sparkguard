@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "name": "said-no",
+  "displayName": "Said No",
+  "version": "0.1.0",
+  "description": "Remembers the rules you tell Muse Code, blocks the tool call that would break one and quotes you back, and undoes agent file edits.",
+  "compat": {
+    "source": "native",
+    "manifestDir": ".muse-plugin"
+  },
+  "capabilities": {
+    "skills": [],
+    "commands": [
+      {
+        "id": "undo",
+        "path": "commands/undo.md",
+        "enabledDefault": true
+      },
+      {
+        "id": "rules",
+        "path": "commands/rules.md",
+        "enabledDefault": true
+      }
+    ],
+    "hooks": [
+      {
+        "id": "capture",
+        "event": "UserPromptSubmit",
+        "command": [
+          "node",
+          "bin/user-prompt-submit.js"
+        ],
+        "timeoutMs": 9000,
+        "statusMessage": "Said No: checking for rules"
+      },
+      {
+        "id": "guard",
+        "event": "PreToolUse",
+        "command": [
+          "node",
+          "bin/pre-tool-use.js"
+        ],
+        "timeoutMs": 9000,
+        "statusMessage": "Said No: checking your rules"
+      }
+    ],
+    "mcpServers": [
+      {
+        "id": "said-no",
+        "transport": "stdio",
+        "command": [
+          "node",
+          "mcp/server.js"
+        ]
+      }
+    ],
+    "reminders": []
+  }
+}
