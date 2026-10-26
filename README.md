@@ -25,7 +25,7 @@ Pattern guards stop `rm -rf`. None of them know what *you* said.
 |---|---|---|
 | You type a prompt | A cheap filter spots rule-like sentences ("never", "don't", "ask me first", Turkish forms too). Muse Spark turns the sentence into a scoped rule: paths, commands or keywords. The rule is stored with your exact words, the time and the session. | Muse Spark 1.3 (structured extraction) |
 | The agent is about to run a tool | Reads and Muse-internal tools pass in ~40 ms. A write or shell call is matched against your rules locally. An exact path or command match is denied with no network call. A possible match (for example a keyword rule like "the billing service") goes to a Muse Spark referee that sees only the call, never the agent's reasoning. | Muse Spark 1.3 (referee, ~0.9 s, ~$0.001 per check) |
-| Something is denied | The agent gets your sentence, the date and the rule id, plus a read-only `sparkguard_rules` tool to verify it came from you. It reports back instead of working around it. You can reply `override r1` to allow one call. | |
+| Something is denied | The agent gets your sentence, the date and the rule id, plus a read-only `sparkguard_rules` tool to verify it came from you. It reports back instead of working around it. If you still want it, just say so ("go ahead this once"). | |
 | A write is allowed | The files it will touch are snapshotted first (new files are recorded as absent). `/undo` or `sparkguard undo` restores them. | |
 
 Every rule and every denial can be mirrored to [Bilinc](https://bilinc.space) (hosted, versioned memory) so you can see who decided what and when. With a Bilinc key, each session also pulls the repo's rules at start (~0.5 s), so a rule said on one machine applies on a teammate's machine and in CI. Rules are keyed by the repo's root commit, not its path; Muse Code's own memory is keyed by absolute path, so a fresh clone starts without it. The mirror is optional and never on the decision path.
@@ -43,10 +43,22 @@ The Meta Model API key powers rule extraction and the referee. Without it, Spark
 
 Start a new Muse Code session: hooks load at session start.
 
-## Commands
+## Just talk to it
 
-- In Muse Code: `/rules`, `/undo [step]`, "override r1", "forget rule 1"
-- CLI: `sparkguard rules | why <id> | add "<sentence>" | forget <id> | steps | undo [step] | decisions | budget`
+There are no commands to learn. Say what you mean, in your own words, in the same chat where you talk to Muse Code:
+
+| You say | Sparkguard does |
+|---|---|
+| "Never delete these, they are our client archive." (right after the agent listed `data/exports`) | Records a rule protecting `data/exports`. "These" is resolved from what you and the agent were just looking at. |
+| "Absolutely never push to main without asking me first." | Records a rule on `git push … main`. |
+| "Don't worry about the lint warnings for now." | Nothing. Relaxations, preferences and one-off instructions are not rules. |
+| (after a block) "fine, you can delete them this one time" | Allows exactly one call that breaks that rule. The rule stays. |
+| "We're done with the archive rule, you can delete exports from now on." | Removes the rule. |
+| "Undo your last change." / "Which rules do I have?" | The agent calls the `sparkguard_undo` / `sparkguard_rules` tools. |
+
+Plain-language routing uses Muse Spark. It runs only on messages that look like a rule, a consent or a withdrawal, or a short reply right after a block. Without a Meta key, Sparkguard falls back to explicit paths and commands, "override r1" and "forget rule 1".
+
+For scripts there is also a CLI: `sparkguard rules | why <id> | add "<sentence>" | forget <id> | steps | undo [step] | decisions | budget`.
 
 ## Design choices
 

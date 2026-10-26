@@ -56,6 +56,10 @@ async function main() {
     }
     case 'forget': {
       const r = store.forget(args[0], root);
+      if (r) {
+        const mirror = require('../lib/mirror');
+        if (mirror.enqueue(mirror.forgetItem(r))) await mirror.flush();
+      }
       console.log(r ? `Forgot ${r.id}: "${r.text}"` : `No active rule ${args[0]}.`);
       return;
     }

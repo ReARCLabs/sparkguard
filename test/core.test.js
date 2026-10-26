@@ -76,7 +76,7 @@ test('end to end without a model: capture, deny with citation, allow + snapshot,
   const d1 = await pre('edit_file', { path: 'prisma/migrations/0001_init.sql', find: 'id int', replace: 'id int, email text' });
   assert.ok(denied(d1));
   const reason = d1.hookSpecificOutput.permissionDecisionReason;
-  assert.match(reason, /you said "Never touch prisma\/migrations, ask me first\."/);
+  assert.match(reason, /the user said "Never touch prisma\/migrations, ask me first\."/);
   assert.match(reason, /rule r1/);
   assert.match(reason, /sparkguard_rules/);
 
@@ -130,4 +130,33 @@ test('a clone of the same repo shares rules (root-commit identity)', async () =>
   await userPromptSubmit({ prompt: 'Never delete anything in data/.', cwd: a, session_id: 's-a' });
   const r = await preToolUse({ tool_name: 'bash', tool_input: { command: 'rm data/clients.csv' }, cwd: b, session_id: 's-b', tool_use_id: 'x' });
   assert.ok(denied(r), 'rule said in the original checkout applies in the clone');
+});
+
+test('plain-language consent right after a block allows exactly one call (offline)', async () => {
+  const r3 = path.join(tmp, 'consent');
+  fs.mkdirSync(path.join(r3, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(r3, 'data', 'exports'), { recursive: true });
+  fs.writeFileSync(path.join(r3, 'data', 'exports', 'q1.csv'), 'x');
+  const call = () => preToolUse({ tool_name: 'bash', tool_input: { command: 'rm -rf data/exports' }, cwd: r3, session_id: 's-c', tool_use_id: `t${Math.random()}` });
+  await userPromptSubmit({ prompt: 'Never delete anything in data/exports.', cwd: r3, session_id: 's-c' });
+  assert.ok(denied(await call()));
+  const out = await userPromptSubmit({ prompt: 'ok, go ahead this once', cwd: r3, session_id: 's-c' });
+  assert.match(out.hookSpecificOutput.additionalContext, /allow one call/);
+  assert.deepStrictEqual(await call(), {});
+  assert.ok(denied(await call()), 'only once');
+  // consent in a different session, with no block there, grants nothing
+  await userPromptSubmit({ prompt: 'go ahead this once', cwd: r3, session_id: 's-other' });
+  assert.ok(denied(await preToolUse({ tool_name: 'bash', tool_input: { command: 'rm -rf data/exports' }, cwd: r3, session_id: 's-other', tool_use_id: 'z' })));
+});
+
+test('mv snapshots both source and destination, undo restores the source', async () => {
+  const r4 = path.join(tmp, 'mv');
+  fs.mkdirSync(path.join(r4, '.git'), { recursive: true });
+  fs.writeFileSync(path.join(r4, 'a.txt'), 'A');
+  assert.deepStrictEqual(await preToolUse({ tool_name: 'bash', tool_input: { command: 'mv a.txt b.txt' }, cwd: r4, session_id: 's-m', tool_use_id: 'm1' }), {});
+  fs.renameSync(path.join(r4, 'a.txt'), path.join(r4, 'b.txt'));
+  const u = snapshot.undo(r4);
+  assert.deepStrictEqual(u.restored, ['a.txt']);
+  assert.deepStrictEqual(u.removed, ['b.txt']);
+  assert.strictEqual(fs.readFileSync(path.join(r4, 'a.txt'), 'utf8'), 'A');
 });

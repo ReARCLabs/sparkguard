@@ -40,8 +40,8 @@
           "node",
           "bin/user-prompt-submit.js"
         ],
-        "timeoutMs": 9000,
-        "statusMessage": "Sparkguard: checking for rules"
+        "timeoutMs": 10000,
+        "statusMessage": "Sparkguard: listening for rules"
       },
       {
         "id": "guard",
@@ -52,6 +52,16 @@
         ],
         "timeoutMs": 9000,
         "statusMessage": "Sparkguard: checking your rules"
+      },
+      {
+        "id": "recap",
+        "event": "Stop",
+        "command": [
+          "node",
+          "bin/stop.js"
+        ],
+        "timeoutMs": 3000,
+        "statusMessage": "Sparkguard: noting the reply"
       }
     ],
     "mcpServers": [
