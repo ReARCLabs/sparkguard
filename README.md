@@ -1,4 +1,9 @@
-# Sparkguard
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/header-dark.png">
+    <img src="assets/header-light.png" alt="Sparkguard" width="600">
+  </picture>
+</h1>
 
 **Sparkguard remembers the rules you tell Muse Code, stops the tool call that would break one, quotes you back with the date, and undoes the file edits you regret.**
 
