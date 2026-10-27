@@ -385,6 +385,15 @@ test('undo undoes the last edit, not itself', async () => {
   }
   assert.strictEqual(snapshot.readSteps(rU).length, before);
   // another server's tool with the same name is still an ordinary MCP call
-  await call('mcp__other__sparkguard_undo', { cwd: rU });
+  await call('mcp__other__sparkguard_undo', { path: 'a.txt' });
   assert.strictEqual(snapshot.readSteps(rU).length, before + 1);
+  // a read with its errors sent to /dev/null records nothing, and undo still finds the edit
+  const steps = snapshot.readSteps(rU).length;
+  await call('Bash', { command: 'ls -la src/ 2>/dev/null; cat a.txt 2>/dev/null | head' });
+  assert.strictEqual(snapshot.readSteps(rU).length, steps);
+  await call('Write', { path: 'a.txt', content: 'three' });
+  fs.writeFileSync(path.join(rU, 'a.txt'), 'three\n');
+  await call('Bash', { command: 'echo done > /tmp/sparkguard-outside-test.txt' });
+  assert.deepStrictEqual(snapshot.undo(rU).restored, ['a.txt']);
+  assert.strictEqual(fs.readFileSync(path.join(rU, 'a.txt'), 'utf8'), 'one\n');
 });
