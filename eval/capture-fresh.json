@@ -1,0 +1,23 @@
+[
+  {"text": "Whatever happens, the archive/ directory stays as it is.", "rule": true, "paths": ["archive"]},
+  {"text": "Please refrain from editing anything under config/prod.", "rule": true, "paths": ["config/prod"]},
+  {"text": "I'd rather you never run git rebase on shared branches here.", "rule": true, "commands": ["git rebase"]},
+  {"text": "The contracts folder is legally sensitive, do not remove or rename files in it.", "rule": true, "paths": ["contracts"]},
+  {"text": "No deleting rows from the users table, period.", "rule": true, "keywords": ["users"]},
+  {"text": "From today on, scripts/deploy.sh is mine, leave it.", "rule": true, "paths": ["scripts/deploy.sh"]},
+  {"text": "Never run helm uninstall against any cluster from this repo.", "rule": true, "commands": ["helm uninstall"]},
+  {"text": "You must not overwrite the translations in locales/.", "rule": true, "paths": ["locales"]},
+  {"text": "Check with me before touching anything in the auth module.", "rule": true, "keywords": ["auth"]},
+  {"text": "Don't ever wipe the cache/ dir, it takes hours to rebuild.", "rule": true, "paths": ["cache"]},
+
+  {"text": "Could you remove the archive/ folder? It's stale.", "rule": false},
+  {"text": "Never use var, prefer const and let.", "rule": false},
+  {"text": "Don't run the full test suite, just the unit tests this time.", "rule": false},
+  {"text": "Please don't add comments to every line.", "rule": false},
+  {"text": "Is it safe to delete cache/ before the release?", "rule": false},
+  {"text": "Rename the contracts folder to agreements.", "rule": false},
+  {"text": "I told you yesterday we never ship on Fridays, so let's wait.", "rule": false},
+  {"text": "Don't touch the CSS for now, focus on the API bug first.", "rule": false},
+  {"text": "Leave a note in the PR description about the migration.", "rule": false},
+  {"text": "Never mind the warnings, merge it.", "rule": false}
+]
