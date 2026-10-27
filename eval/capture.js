@@ -22,6 +22,7 @@ if (!offline) {
 const { userPromptSubmit } = require('../lib/prompt');
 const store = require('../lib/store');
 const model = require('../lib/model');
+const background = require('../lib/background');
 
 const strip = (p) => p.replace(/\*+/g, '').replace(/\/+$/, '').replace(/^\.\//, '').toLowerCase();
 
@@ -45,9 +46,13 @@ function scoped(rule, c) {
     const t0 = Date.now();
     const out = await userPromptSubmit({ prompt: c.text, cwd, session_id: `eval-${i}` }, { timeoutMs: 15000 });
     const ms = Date.now() - t0;
+    // Background-routed prompts: wait for the detached router (it removes its marker).
+    while (background.pendingFor(cwd, `eval-${i}`).length && Date.now() - t0 < 15000) await new Promise((r) => setTimeout(r, 100));
+    const activeMs = Date.now() - t0;
     const rule = store.active(cwd)[0] || null;
     const got = !!rule;
-    rows.push({ i, text: c.text, expected: c.rule, got, scoped: got && c.rule ? scoped(rule, c) : null, ms,
+    const tier = !rule ? null : rule.extractor === 'background' ? 'background' : 'sync';
+    rows.push({ i, text: c.text, expected: c.rule, got, tier, scoped: got && c.rule ? scoped(rule, c) : null, ms, active_ms: activeMs,
       rule: rule && { paths: rule.paths, commands: rule.commands, keywords: rule.keywords, about: rule.about, via: rule.extractor },
       said: out.systemMessage || null });
     process.stderr.write(`${got === c.rule ? '.' : 'x'}`);
@@ -67,6 +72,9 @@ function scoped(rule, c) {
     scope_correct_of_captured: `${scopedOk}/${tp}`,
     false_positives: fp,
     median_ms: rows.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(rows.length / 2)],
+    captured_sync: rows.filter((r) => r.got && r.tier === 'sync').length,
+    captured_background: rows.filter((r) => r.got && r.tier === 'background').length,
+    background_active_ms_median: (() => { const b = rows.filter((r) => r.tier === 'background').map((r) => r.active_ms).sort((a, b) => a - b); return b.length ? b[Math.floor(b.length / 2)] : null; })(),
     spent_usd: +spent.toFixed(4),
   };
   // Keep the real spend cap honest.

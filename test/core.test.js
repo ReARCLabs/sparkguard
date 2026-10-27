@@ -300,3 +300,41 @@ test('command rules match the command being run, not text that mentions it', () 
     ['echo git push origin main', false],
   ]) assert.strictEqual(match.commandMatches(c, 'git push origin main'), want, c);
 });
+
+test('background routing adds rules only, announces them, and the guard waits for it', async () => {
+  const background = require('../lib/background');
+  const intent = require('../lib/intent');
+  const rB = path.join(tmp, 'background');
+  fs.mkdirSync(path.join(rB, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(rB, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(rB, 'scripts', 'deploy.sh'), 'echo deploy\n');
+  const realRoute = intent.route;
+  intent.route = async () => [
+    { type: 'add_rule', sentence: 'scripts/deploy.sh is mine, leave it.', paths: ['scripts/deploy.sh'], commands: [], keywords: [], confidence: 0.9 },
+    { type: 'allow_once', rule_id: 'r1', confidence: 0.99 },
+    { type: 'forget_rule', rule_id: 'r1', confidence: 0.99 },
+  ];
+  try {
+    const job = path.join(tmp, 'job.json');
+    fs.writeFileSync(job, JSON.stringify({ text: 'From today on, scripts/deploy.sh is mine, leave it.', cwd: rB, session_id: 's-bg' }));
+    await background.run(job);
+    assert.ok(!fs.existsSync(job), 'job file removed');
+    const rules = store.active(rB);
+    assert.strictEqual(rules.length, 1, 'only the rule was applied; allow_once and forget are ignored');
+    const edit = () => preToolUse({ tool_name: 'write_file', tool_input: { path: 'scripts/deploy.sh', content: 'x' }, cwd: rB, session_id: 's-bg', tool_use_id: `b${Math.random()}` });
+    assert.ok(denied(await edit()));
+    const out = await userPromptSubmit({ prompt: 'ok thanks', cwd: rB, session_id: 's-bg' });
+    assert.match(out.hookSpecificOutput.additionalContext, /from an earlier message/);
+    const again = await userPromptSubmit({ prompt: 'and now?', cwd: rB, session_id: 's-bg' });
+    assert.ok(!again.hookSpecificOutput, 'announced once');
+    // a pending marker makes a mutating call wait (bounded), then proceed
+    const marker = path.join(require('../lib/paths').projectDataDir(rB), 'pending', `s-wait-${Date.now()}-1.json`);
+    fs.mkdirSync(path.dirname(marker), { recursive: true });
+    fs.writeFileSync(marker, '{}');
+    // the background router is another process; it removes the marker when done
+    require('child_process').spawn(process.execPath, ['-e', `setTimeout(() => require('fs').unlinkSync(${JSON.stringify(marker)}), 300)`], { stdio: 'ignore' });
+    const t0 = Date.now();
+    background.settle(rB, 's-wait', 2500);
+    assert.ok(Date.now() - t0 < 2500);
+  } finally { intent.route = realRoute; }
+});
