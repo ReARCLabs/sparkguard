@@ -1,13 +1,13 @@
 'use strict';
 // Rule-capture eval: does a plain-language sentence become the right rule, and
 // do ordinary instructions stay ordinary? Runs the real UserPromptSubmit hook
-// in throwaway config/data dirs. Usage: node eval/capture.js [--offline] [--heldout]
+// in throwaway config/data dirs. Usage: node eval/capture.js [--offline] [--heldout | --fresh]
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
 const offline = process.argv.includes('--offline');
-const set = process.argv.includes('--heldout') ? 'heldout' : 'cases';
+const set = process.argv.includes('--fresh') ? 'fresh' : process.argv.includes('--heldout') ? 'heldout' : 'cases';
 const realConfig = process.env.SPARKGUARD_CONFIG_DIR || path.join(os.homedir(), '.config', 'sparkguard');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sparkguard-eval-'));
 process.env.SPARKGUARD_CONFIG_DIR = path.join(tmp, 'config');
