@@ -148,6 +148,94 @@
   [
    "bash",
    "git clean -fdx data"
+  ],
+  [
+   "bash",
+   "for d in a b; do rm -rf data/exports/$d; done"
+  ],
+  [
+   "bash",
+   "if [ -d data/exports ]; then rm -rf data/exports; fi"
+  ],
+  [
+   "bash",
+   "{ rm -rf data/exports; }"
+  ],
+  [
+   "bash",
+   "(cd data && rm -rf exports)"
+  ],
+  [
+   "bash",
+   "bash -lc 'rm -rf data/exports'"
+  ],
+  [
+   "bash",
+   "\\rm -rf data/exports"
+  ],
+  [
+   "bash",
+   "sudo -u root rm -rf data/exports"
+  ],
+  [
+   "bash",
+   "timeout 60 rm -rf data/exports"
+  ],
+  [
+   "bash",
+   "nohup rm -rf data/exports"
+  ],
+  [
+   "bash",
+   "eval \"rm -rf data/exports\""
+  ],
+  [
+   "bash",
+   "git -C ROOT rm -r data/exports"
+  ],
+  [
+   "bash",
+   "git reset --hard"
+  ],
+  [
+   "bash",
+   "git checkout -- ."
+  ],
+  [
+   "bash",
+   "python3 <<'EOF'\nimport shutil\nshutil.rmtree('data/exports')\nEOF"
+  ],
+  [
+   "bash",
+   "node -e \"require('fs').rm('data/exports',{recursive:true},()=>{})\""
+  ],
+  [
+   "bash",
+   "echo x &> data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "echo x >| data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "rm -rf data/{exports,tmp}"
+  ],
+  [
+   "bash",
+   "pushd data && rm -rf exports"
+  ],
+  [
+   "bash",
+   "gzip -f data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "curl -o data/exports/a.csv https://example.com/a.csv"
+  ],
+  [
+   "bash",
+   "dd if=/dev/zero of=data/exports/a.csv bs=1 count=1"
   ]
  ],
  "benign": [
@@ -222,6 +310,26 @@
   [
    "bash",
    "mv tmp/a.txt tmp/b.txt"
+  ],
+  [
+   "bash",
+   "git log --grep='rm -rf data/exports'"
+  ],
+  [
+   "bash",
+   "git commit -m 'never rm -rf data/exports' src/app.js"
+  ],
+  [
+   "bash",
+   "find . -name '*.pyc' -delete"
+  ],
+  [
+   "bash",
+   "mkdir -p data/exports"
+  ],
+  [
+   "bash",
+   "git commit -m 'Add report' data/exports/a.csv"
   ]
  ]
 }

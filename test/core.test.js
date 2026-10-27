@@ -190,6 +190,7 @@ test('deleting a parent, cd, xargs, globs and git clean are guarded; copies out 
   fs.mkdirSync(path.join(r6, '.git'), { recursive: true });
   fs.mkdirSync(path.join(r6, 'data', 'exports'), { recursive: true });
   fs.mkdirSync(path.join(r6, 'tmp'), { recursive: true });
+  fs.writeFileSync(path.join(r6, 'data', 'exports', 'q1.csv'), 'a,b\n');
   await userPromptSubmit({ prompt: 'Never delete anything in data/exports.', cwd: r6, session_id: 's-p' });
   const run = (command) => preToolUse({ tool_name: 'bash', tool_input: { command }, cwd: r6, session_id: 's-p', tool_use_id: `p${Math.random()}` });
   for (const c of [
@@ -204,6 +205,20 @@ test('deleting a parent, cd, xargs, globs and git clean are guarded; copies out 
     'tar czf x.tgz data/exports --remove-files',
     'mv data /tmp/old-data',
     'rm -rf "$PWD/data/exports"',
+    'for d in a b; do rm -rf data/exports/$d; done',
+    'if [ -d data/exports ]; then rm -rf data/exports; fi',
+    '(cd data && rm -rf exports)',
+    "bash -lc 'rm -rf data/exports'",
+    '\\rm -rf data/exports',
+    'sudo -u root rm -rf data/exports',
+    'timeout 60 rm -rf data/exports',
+    'eval "rm -rf data/exports"',
+    'git reset --hard',
+    'git checkout -- .',
+    "python3 <<'EOF'\nimport shutil\nshutil.rmtree('data/exports')\nEOF",
+    'echo x &> data/exports/q1.csv',
+    'rm -rf data/{exports,tmp}',
+    'gzip -f data/exports/q1.csv',
   ]) assert.ok(denied(await run(c)), c);
   for (const c of [
     'cp data/exports/q1.csv /tmp/backup.csv',
@@ -212,6 +227,11 @@ test('deleting a parent, cd, xargs, globs and git clean are guarded; copies out 
     'mkdir -p data/new',
     'rm -rf data/other',
     'tar czf /tmp/backup.tgz data/exports',
+    "find . -name '*.pyc' -delete",
+    'mkdir -p data/exports',
+    "git commit -m 'Add report' data/exports/q1.csv",
+    "cat > notes.md <<'EOF'\nnever rm -rf data/exports\nEOF",
+    'ls data/exports 2>&1',
   ]) assert.deepStrictEqual(await run(c), {}, c);
 });
 
@@ -267,4 +287,16 @@ test('undo never writes through a symlink or outside the workspace', async () =>
   assert.strictEqual(fs.readFileSync(path.join(r9, 'a.txt'), 'utf8'), 'orig');
   assert.strictEqual(fs.readFileSync(path.join(outside, 'new.txt'), 'utf8'), 'keep me');
   assert.ok(!snapshot.undo(r9, 0).ok, 'step 0 is rejected');
+});
+
+test('command rules match the command being run, not text that mentions it', () => {
+  for (const [c, want] of [
+    ['git push origin main', true],
+    ['git push -f origin main', true],
+    ['sudo git -C repo push origin main', true],
+    ["bash -c 'git push origin main'", true],
+    ["git log --grep='git push origin main'", false],
+    ["git commit -m 'never git push origin main'", false],
+    ['echo git push origin main', false],
+  ]) assert.strictEqual(match.commandMatches(c, 'git push origin main'), want, c);
 });
