@@ -209,3 +209,18 @@ test('deleting a parent, cd, xargs, globs and git clean are guarded; copies out 
     'tar czf /tmp/backup.tgz data/exports',
   ]) assert.deepStrictEqual(await run(c), {}, c);
 });
+
+test('a one-time yes that names the protected path works before any block (offline)', async () => {
+  const r7 = path.join(tmp, 'early-consent');
+  fs.mkdirSync(path.join(r7, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(r7, 'data', 'exports'), { recursive: true });
+  await userPromptSubmit({ prompt: 'Never delete anything in data/exports.', cwd: r7, session_id: 's-e' });
+  const run = () => preToolUse({ tool_name: 'bash', tool_input: { command: 'rm -rf data/exports' }, cwd: r7, session_id: 's-e', tool_use_id: `e${Math.random()}` });
+  // a question or a vague remark grants nothing
+  await userPromptSubmit({ prompt: 'Could we delete data/exports this once?', cwd: r7, session_id: 's-e' });
+  assert.ok(denied(await run()));
+  const out = await userPromptSubmit({ prompt: 'Fine, go ahead and delete data/exports this once.', cwd: r7, session_id: 's-e' });
+  assert.match(out.hookSpecificOutput.additionalContext, /allow one call/);
+  assert.deepStrictEqual(await run(), {});
+  assert.ok(denied(await run()), 'the rule applies again after one use');
+});
