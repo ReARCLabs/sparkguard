@@ -397,3 +397,12 @@ test('undo undoes the last edit, not itself', async () => {
   assert.deepStrictEqual(snapshot.undo(rU).restored, ['a.txt']);
   assert.strictEqual(fs.readFileSync(path.join(rU, 'a.txt'), 'utf8'), 'one\n');
 });
+
+test('relative dates read naturally', () => {
+  const { fmtDate } = require('../lib/decide');
+  const ago = (m) => fmtDate(new Date(Date.now() - m * 60000).toISOString(), 'UTC');
+  assert.match(ago(0), /, just now$/);
+  assert.match(ago(70), /, 1 hour ago$/);
+  assert.match(ago(180), /, 3 hours ago$/);
+  assert.match(ago(48 * 60 + 5), /, 2 days ago$/);
+});
