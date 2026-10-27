@@ -1,0 +1,27 @@
+[
+  {"text": "The seed script in db/seed.ts took me a week, so it's not up for rewriting.", "rule": true, "paths": ["db/seed.ts"]},
+  {"text": "Keep your hands off the infra repo folder, ops will kill me.", "rule": true, "paths": ["infra"]},
+  {"text": "Going forward, the public/ assets are frozen.", "rule": true, "paths": ["public"]},
+  {"text": "Under no condition should the agent run docker volume rm.", "rule": true, "commands": ["docker volume rm"]},
+  {"text": "Our customer exports in reports/ must survive any cleanup you do.", "rule": true, "paths": ["reports"]},
+  {"text": "Promise me you won't force-push again.", "rule": true, "commands": ["git push --force"]},
+  {"text": "Only I get to change the pricing config in config/pricing.json.", "rule": true, "paths": ["config/pricing.json"]},
+  {"text": "Nothing in vendor/ gets modified, it's pinned upstream code.", "rule": true, "paths": ["vendor"]},
+  {"text": "Ask me every time before you delete a branch.", "rule": true, "commands": ["git branch -D"]},
+  {"text": "Stay away from the billing webhooks, they're live.", "rule": true, "keywords": ["billing"]},
+  {"text": "Treat .env.production as untouchable.", "rule": true, "paths": [".env.production"]},
+  {"text": "I don't want the analytics/ folder emptied ever again.", "rule": true, "paths": ["analytics"]},
+
+  {"text": "Fix the flaky test in test/api.test.ts.", "rule": false},
+  {"text": "Why did you delete the reports folder yesterday?", "rule": false},
+  {"text": "Can we freeze dependencies before the release?", "rule": false},
+  {"text": "Clean up the public/ folder, half of it is unused.", "rule": false},
+  {"text": "Run git push --force on my feature branch, I rebased it.", "rule": false},
+  {"text": "The pricing page looks broken on mobile.", "rule": false},
+  {"text": "I never liked this naming, rename it to fetchUser.", "rule": false},
+  {"text": "Write a script that deletes old branches.", "rule": false},
+  {"text": "Thanks, that worked.", "rule": false},
+  {"text": "Don't make the error messages so long.", "rule": false},
+  {"text": "Explain what vendor/ contains.", "rule": false},
+  {"text": "We should probably stop using moment.js at some point.", "rule": false}
+]
