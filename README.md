@@ -46,7 +46,7 @@ This is a measured problem, not an anecdote. On file-deletion tasks, a casual re
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/flow-dark.png">
-  <img src="assets/flow-light.png" alt="You talk: your plain-words rule goes to the Muse Spark router and is stored as rule r1 with your words, the date and the session, optionally synced through Bilinc. Agent acts: each tool call goes to the local matcher (about 30 ms, no network); an exact match is denied with your rule quoted, a possible match goes to the Muse Spark referee, which denies or allows, and a call with no rule involved is snapshotted and run, so /undo can restore files." width="100%">
+  <img src="assets/flow-light.png" alt="You talk: your plain-words rule goes to the Muse Spark router and is stored as rule r1 with your words, the date and the session. Agent acts: each tool call goes to the local matcher (about 30 ms, no network); an exact match is denied with your rule quoted, a possible match goes to the Muse Spark referee, which denies or allows, and a call with no rule involved is snapshotted and run, so /undo can restore files." width="100%">
 </picture>
 
 | Moment | What Sparkguard does | Meta model |
