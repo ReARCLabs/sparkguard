@@ -101,10 +101,15 @@ test('end to end without a model: capture, deny with citation, allow + snapshot,
 });
 
 test('override once, then the rule applies again; forget removes it', async () => {
-  await userPromptSubmit({ prompt: 'override r1', cwd: repo, session_id: 's-2' });
+  // a yes said in another chat does not unlock this one
+  await userPromptSubmit({ prompt: 'override r1', cwd: repo, session_id: 's-other' });
+  assert.ok(denied(await pre('edit_file', { path: 'prisma/migrations/0001_init.sql', find: 'a', replace: 'b' })));
+  await userPromptSubmit({ prompt: 'override r1', cwd: repo, session_id: 's-test' });
   assert.deepStrictEqual(await pre('edit_file', { path: 'prisma/migrations/0001_init.sql', find: 'a', replace: 'b' }), {});
   assert.ok(denied(await pre('edit_file', { path: 'prisma/migrations/0001_init.sql', find: 'a', replace: 'b' })));
-  await userPromptSubmit({ prompt: 'forget rule 1', cwd: repo, session_id: 's-2' });
+  await userPromptSubmit({ prompt: "Don't forget rule 1, it still applies.", cwd: repo, session_id: 's-test' });
+  assert.ok(denied(await pre('edit_file', { path: 'prisma/migrations/0001_init.sql', find: 'a', replace: 'b' })), "don't forget keeps the rule");
+  await userPromptSubmit({ prompt: 'forget rule 1', cwd: repo, session_id: 's-test' });
   assert.deepStrictEqual(await pre('edit_file', { path: 'prisma/migrations/0001_init.sql', find: 'a', replace: 'b' }), {});
 });
 
@@ -223,4 +228,43 @@ test('a one-time yes that names the protected path works before any block (offli
   assert.match(out.hookSpecificOutput.additionalContext, /allow one call/);
   assert.deepStrictEqual(await run(), {});
   assert.ok(denied(await run()), 'the rule applies again after one use');
+});
+
+test('questions, refusals and look-alike words never widen a rule (offline)', async () => {
+  const r8 = path.join(tmp, 'widen');
+  fs.mkdirSync(path.join(r8, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(r8, 'data'), { recursive: true });
+  await userPromptSubmit({ prompt: 'Never delete anything in data/.', cwd: r8, session_id: 's-w' });
+  const run = () => preToolUse({ tool_name: 'bash', tool_input: { command: 'rm -rf data/export.csv' }, cwd: r8, session_id: 's-w', tool_use_id: `w${Math.random()}` });
+  assert.ok(denied(await run()));
+  for (const p of ['Is it allowed to delete the data folder?', "I'm not sure, don't do it, it's risky.", 'Is that allowed? Why was it blocked?']) {
+    const out = await userPromptSubmit({ prompt: p, cwd: r8, session_id: 's-w' });
+    assert.ok(!out.hookSpecificOutput, p);
+    assert.ok(denied(await run()), p);
+  }
+  // with no block to answer, a one-time yes must name the path as a word
+  const fresh = () => preToolUse({ tool_name: 'bash', tool_input: { command: 'rm -rf data/export.csv' }, cwd: r8, session_id: 's-w2', tool_use_id: `w${Math.random()}` });
+  const out = await userPromptSubmit({ prompt: 'Sure, this once, the metadata looks fine.', cwd: r8, session_id: 's-w2' });
+  assert.ok(!out.hookSpecificOutput);
+  assert.ok(denied(await fresh()));
+});
+
+test('undo never writes through a symlink or outside the workspace', async () => {
+  const r9 = path.join(tmp, 'undo-safe');
+  const outside = path.join(tmp, 'outside');
+  fs.mkdirSync(path.join(r9, '.git'), { recursive: true });
+  fs.mkdirSync(outside, { recursive: true });
+  fs.writeFileSync(path.join(r9, 'a.txt'), 'orig');
+  fs.writeFileSync(path.join(outside, 'secret.txt'), 'CHANGED');
+  snapshot.take(r9, { tool_use_id: 'u1', session_id: 's-u', tool: 'write_file', summary: 'a.txt', paths: [path.join(r9, 'a.txt'), path.join(outside, 'new.txt')] });
+  fs.rmSync(path.join(r9, 'a.txt'));
+  fs.symlinkSync(path.join(outside, 'secret.txt'), path.join(r9, 'a.txt'));
+  fs.writeFileSync(path.join(outside, 'new.txt'), 'keep me');
+  const res = snapshot.undo(r9);
+  assert.ok(res.ok);
+  assert.strictEqual(fs.readFileSync(path.join(outside, 'secret.txt'), 'utf8'), 'CHANGED');
+  assert.ok(!fs.lstatSync(path.join(r9, 'a.txt')).isSymbolicLink());
+  assert.strictEqual(fs.readFileSync(path.join(r9, 'a.txt'), 'utf8'), 'orig');
+  assert.strictEqual(fs.readFileSync(path.join(outside, 'new.txt'), 'utf8'), 'keep me');
+  assert.ok(!snapshot.undo(r9, 0).ok, 'step 0 is rejected');
 });
