@@ -5,16 +5,27 @@
   </picture>
 </h1>
 
-**Sparkguard remembers the rules you tell Muse Code, stops the tool call that would break one, quotes you back with the date, and undoes the file edits you regret.**
+<p align="center"><b>Sparkguard remembers the rules you tell Muse Code, stops the tool call that would break one, quotes you back with the date, and undoes the file edits you regret.</b></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Muse_Code-plugin-F2A33A" alt="Muse Code plugin">
+  <img src="https://img.shields.io/badge/model-muse--spark--1.3-15171C" alt="Model: muse-spark-1.3">
+  <img src="https://img.shields.io/badge/bypass_matrix-68%2F70_blocked-2E7D32" alt="Bypass matrix: 68 of 70 blocked">
+  <img src="https://img.shields.io/badge/tests-20_passing-2E7D32" alt="20 tests passing">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
+</p>
 
 A plugin for [Muse Code](https://dev.meta.ai/docs/muse-code), Meta's coding agent. Built for the Meta Global AI Developer Hackathon (Oct 26 – Nov 4, 2026).
 
-```
-you, Monday:     Never touch prisma/migrations, ask me first. Now fix the bug in src/math.js.
-agent, Thursday: Sparkguard blocked this. On Monday you said "Never touch prisma/migrations,
-                 ask me first." (rule r1). I didn't change 0001_init.sql.
-you:             fine, go ahead this once
-```
+**1. You say a rule once, in plain words, while asking for something else.** Sparkguard records it; the agent carries on with the bug fix.
+
+<img src="assets/screen-session1.png" alt="Muse Code session 1: the user says 'Never touch prisma/migrations, ask me first. Now fix the bug in src/math.js.' The agent replies 'Sparkguard: noted, prisma/migrations is protected' and fixes the bug." width="100%">
+
+**2. A later session that has never heard of the rule tries to edit the migration.** Sparkguard denies the call before it runs and hands the agent your sentence, the date and the rule id. The agent tells you instead of working around it. To allow it once, you just say so.
+
+<img src="assets/screen-session2.png" alt="Muse Code session 2: the agent tries to edit prisma/migrations/0001_init.sql; the edit fails with 'Sparkguard blocked this: on Oct 27, 04:44 ... the user said Never touch prisma/migrations, ask me first (rule r1)'. The agent reports that it did not change the migration." width="100%">
+
+<sub>Both are unedited captures of Muse Code 1.4.13 running the plugin from this repo, on the demo workspace from <code>scripts/demo-setup.sh</code>.</sub>
 
 ```sh
 git clone https://github.com/ReARCLabs/sparkguard && muse plugins install ./sparkguard --scope user
@@ -32,6 +43,23 @@ Pattern guards stop `rm -rf`. None of them know what *you* said.
 This is a measured problem, not an anecdote. On file-deletion tasks, a casual request that gives a reason ("we don't need those old files anymore") is executed by every one of ten model endpoints tested, and labels inside the model's context are not a trust boundary; what reliably stops out-of-scope deletion is an external monitor ([Leong 2026, arXiv:2608.28502](https://arxiv.org/abs/2608.28502)). Sparkguard is that monitor for Muse Code, with the scope taken from what you said.
 
 ## How it works
+
+```mermaid
+flowchart LR
+    U["You type a message"] --> G{"Sounds like a rule,<br/>a yes, or names a file?"}
+    G -- "clearly a rule / a yes" --> R["Muse Spark routes it<br/>(before the agent starts)"]
+    G -- "softer phrasing / names a file" --> B["Muse Spark routes it<br/>in the background (adds rules only)"]
+    R --> S[("Rules: your words,<br/>date, session")]
+    B --> S
+    A["Agent is about to run a tool"] --> M{"Local matcher<br/>~30 ms"}
+    S --> M
+    M -- "exact match" --> D["Deny, quoting your rule"]
+    M -- "maybe" --> J["Muse Spark referee<br/>sees only the call"]
+    J -- "breaks a rule" --> D
+    J -- "fine" --> W["Snapshot, then run"]
+    M -- "no rule involved" --> W
+    W --> UN["/undo restores files"]
+```
 
 | Moment | What Sparkguard does | Meta model |
 |---|---|---|
