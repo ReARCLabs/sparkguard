@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+const fs = require('fs');
 // Minimal stdio MCP server so the agent can verify a rule's source itself
 // (gate test: the agent doubted an unverifiable "you said X on date"),
 // and so the user can ask the agent to undo a step.
@@ -32,7 +33,9 @@ const TOOLS = [
 function text(t) { return { content: [{ type: 'text', text: t }] }; }
 
 function call(name, args) {
-  const root = projectRoot(args.cwd || process.env.MUSE_WORKSPACE || process.cwd());
+  // The workspace must be named explicitly; undo never guesses which project it acts on.
+  if (typeof args.cwd !== 'string' || !path.isAbsolute(args.cwd) || !fs.existsSync(args.cwd)) return { ...text('cwd must be the absolute path of the current workspace.'), isError: true };
+  const root = projectRoot(args.cwd);
   if (name === 'sparkguard_rules') {
     const rules = store.active(root);
     if (!rules.length) return text(`No Sparkguard rules on record for ${root}.`);
