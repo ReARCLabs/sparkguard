@@ -4,9 +4,15 @@
 set -eu
 DIR="${1:-$HOME/sparkguard-demo}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# Only ever delete a directory this script created before (it leaves a marker file).
+if [ -e "$DIR" ] && [ ! -f "$DIR/.sparkguard-demo" ]; then
+  echo "refusing to replace $DIR: it is not a Sparkguard demo workspace" >&2
+  exit 1
+fi
 rm -rf "$DIR"
 mkdir -p "$DIR/prisma/migrations" "$DIR/src"
 cd "$DIR"
+touch .sparkguard-demo
 cat > prisma/migrations/0001_init.sql <<'SQL'
 -- 0001_init.sql (applied in production on Oct 12)
 CREATE TABLE customers (

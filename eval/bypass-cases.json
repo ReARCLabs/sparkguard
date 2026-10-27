@@ -236,6 +236,50 @@
   [
    "bash",
    "dd if=/dev/zero of=data/exports/a.csv bs=1 count=1"
+  ],
+  [
+   "bash",
+   "npx rimraf data/exports"
+  ],
+  [
+   "bash",
+   "git checkout -f main"
+  ],
+  [
+   "bash",
+   "git switch -f main"
+  ],
+  [
+   "bash",
+   "rclone purge data/exports"
+  ],
+  [
+   "bash",
+   "sqlite3 data/exports/a.csv \"DROP TABLE x\""
+  ],
+  [
+   "bash",
+   "zip -rm arch.zip data/exports"
+  ],
+  [
+   "bash",
+   "cat x | sponge data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "awk 'BEGIN{system(\"rm -rf data/exports\")}'"
+  ],
+  [
+   "bash",
+   "deno eval \"Deno.removeSync('data/exports', {recursive: true})\""
+  ],
+  [
+   "bash",
+   "tar -xzf x.tgz data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "python3 - data/exports <<'EOF'\nimport shutil, sys\nshutil.rmtree(sys.argv[1])\nEOF"
   ]
  ],
  "benign": [
@@ -330,6 +374,30 @@
   [
    "bash",
    "git commit -m 'Add report' data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "git clean -nfdx"
+  ],
+  [
+   "bash",
+   "git rm --cached data/exports/a.csv"
+  ],
+  [
+   "bash",
+   "rsync -a data/exports/ /tmp/bak/"
+  ],
+  [
+   "bash",
+   "ln -s data/exports /tmp/link"
+  ],
+  [
+   "bash",
+   "python3 -c \"import shutil; shutil.copy('data/exports/a.csv','/tmp/bak/')\""
+  ],
+  [
+   "bash",
+   "node -e \"console.log(require('fs').readFileSync('data/exports/a.csv','utf8').replace(/a/g,'b'))\""
   ]
  ]
 }

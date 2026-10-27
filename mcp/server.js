@@ -57,18 +57,13 @@ function call(name, args) {
 function reply(id, result) { process.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', id, result })}\n`); }
 function fail(id, code, message) { process.stdout.write(`${JSON.stringify({ jsonrpc: '2.0', id, error: { code, message } })}\n`); }
 
-let buf = '';
-process.stdin.on('data', (chunk) => {
-  buf += chunk;
-  let i;
-  while ((i = buf.indexOf('\n')) !== -1) {
-    const line = buf.slice(0, i).trim();
-    buf = buf.slice(i + 1);
-    if (!line) continue;
-    let msg;
-    try { msg = JSON.parse(line); } catch { continue; }
-    const { id, method, params } = msg;
-    if (id === undefined) continue; // notification
+function handle(line) {
+  let msg;
+  try { msg = JSON.parse(line); } catch { return; }
+  if (Array.isArray(msg)) { fail(null, -32600, 'batch requests are not supported'); return; }
+  if (!msg || typeof msg !== 'object') return;
+  const { id, method, params } = msg;
+  if (id === undefined) return; // notification
     try {
       if (method === 'initialize') {
         reply(id, { protocolVersion: params?.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'sparkguard', version: require(path.join(__dirname, '..', 'package.json')).version } });
@@ -79,5 +74,17 @@ process.stdin.on('data', (chunk) => {
     } catch (e) {
       fail(id, -32603, String(e.message || e));
     }
+}
+
+let buf = '';
+process.stdin.setEncoding('utf8'); // decodes across chunk boundaries
+process.stdin.on('data', (chunk) => {
+  buf += chunk;
+  let i;
+  while ((i = buf.indexOf('\n')) !== -1) {
+    const line = buf.slice(0, i).trim();
+    buf = buf.slice(i + 1);
+    if (line) handle(line);
   }
 });
+process.stdin.on('end', () => { if (buf.trim()) handle(buf.trim()); });

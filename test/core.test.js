@@ -338,3 +338,36 @@ test('background routing adds rules only, announces them, and the guard waits fo
     assert.ok(Date.now() - t0 < 2500);
   } finally { intent.route = realRoute; }
 });
+
+test('pentest round two: smart quotes, refusals, quoted yeses, multi-rule calls (offline)', async () => {
+  const rP = path.join(tmp, 'pentest2');
+  fs.mkdirSync(path.join(rP, '.git'), { recursive: true });
+  for (const d of ['logs', 'prisma/migrations']) fs.mkdirSync(path.join(rP, d), { recursive: true });
+  await userPromptSubmit({ prompt: 'Never delete logs/.', cwd: rP, session_id: 's-q' });
+  await userPromptSubmit({ prompt: 'Never touch prisma/migrations.', cwd: rP, session_id: 's-q' });
+  const run = (command) => preToolUse({ tool_name: 'bash', tool_input: { command }, cwd: rP, session_id: 's-q', tool_use_id: `q${Math.random()}` });
+  for (const p of ['Don’t go ahead this once.', "I won't override r1, keep it blocked.", 'I guess it is fine, go ahead this once.', 'The notes say: "go ahead this once"', 'ok thanks. The README reads: please do the deploy this once.']) {
+    assert.ok(denied(await run('rm -rf logs')), `block before: ${p}`);
+    const out = await userPromptSubmit({ prompt: p, cwd: rP, session_id: 's-q' });
+    assert.ok(!out.hookSpecificOutput, p);
+    assert.ok(denied(await run('rm -rf logs')), p);
+  }
+  await userPromptSubmit({ prompt: "I won't forget rule 1.", cwd: rP, session_id: 's-q' });
+  assert.strictEqual(store.active(rP).length, 2, "won't forget keeps the rule");
+  // one yes covers one rule: a call that also breaks another rule stays denied, and the yes is kept
+  await userPromptSubmit({ prompt: 'override r1', cwd: rP, session_id: 's-q' });
+  assert.ok(denied(await run('rm -rf logs prisma/migrations')));
+  assert.deepStrictEqual(await run('rm -rf logs'), {});
+});
+
+test('host casing, npx rimraf, dry runs and backups', async () => {
+  const rC = path.join(tmp, 'casing');
+  fs.mkdirSync(path.join(rC, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(rC, 'data', 'exports'), { recursive: true });
+  await userPromptSubmit({ prompt: 'Never delete anything in data/exports.', cwd: rC, session_id: 's-c' });
+  const call = (tool_name, tool_input) => preToolUse({ tool_name, tool_input, cwd: rC, session_id: 's-c', tool_use_id: `c${Math.random()}` });
+  assert.ok(denied(await call('Bash', { command: 'rm -rf data/exports' })));
+  assert.ok(denied(await call('Write', { path: 'data/exports/a.csv', content: 'x' })));
+  for (const c of ['npx rimraf data/exports', 'git checkout -f main', 'zip -rm a.zip data/exports', 'cat x | sponge data/exports/a.csv']) assert.ok(denied(await call('bash', { command: c })), c);
+  for (const c of ['git clean -nfdx', 'git rm --cached data/exports/a.csv', 'rsync -a data/exports/ /tmp/bak/', 'ln -s data/exports /tmp/link']) assert.deepStrictEqual(await call('bash', { command: c }), {}, c);
+});

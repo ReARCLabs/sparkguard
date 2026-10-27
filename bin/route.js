@@ -7,4 +7,4 @@ const { run } = require('../lib/background');
 const job = process.argv[2];
 // Hard stop: never linger, and never leave the marker that makes the guard wait.
 setTimeout(() => { try { fs.unlinkSync(job); } catch { /* gone */ } process.exit(0); }, 10000).unref();
-run(job).catch(() => {}).finally(() => process.exit(0));
+run(job).catch(() => {}).finally(() => { try { fs.unlinkSync(job); } catch { /* gone */ } process.exit(0); });
