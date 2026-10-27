@@ -371,3 +371,20 @@ test('host casing, npx rimraf, dry runs and backups', async () => {
   for (const c of ['npx rimraf data/exports', 'git checkout -f main', 'zip -rm a.zip data/exports', 'cat x | sponge data/exports/a.csv']) assert.ok(denied(await call('bash', { command: c })), c);
   for (const c of ['git clean -nfdx', 'git rm --cached data/exports/a.csv', 'rsync -a data/exports/ /tmp/bak/', 'ln -s data/exports /tmp/link']) assert.deepStrictEqual(await call('bash', { command: c }), {}, c);
 });
+
+test('undo undoes the last edit, not itself', async () => {
+  const rU = path.join(tmp, 'undo-self');
+  fs.mkdirSync(path.join(rU, '.git'), { recursive: true });
+  fs.writeFileSync(path.join(rU, 'a.txt'), 'one\n');
+  const call = (tool_name, tool_input) => preToolUse({ tool_name, tool_input, cwd: rU, session_id: 's-u', tool_use_id: `u${Math.random()}` });
+  await call('Write', { path: 'a.txt', content: 'two' });
+  const before = snapshot.readSteps(rU).length;
+  for (const op of ['undo', 'steps', 'rules']) {
+    assert.deepStrictEqual(await call(`mcp__plugin_sparkguard_sparkguard__sparkguard_${op}`, { cwd: rU }), {}, op);
+    assert.deepStrictEqual(await call(`mcp__sparkguard__sparkguard_${op}`, { cwd: rU }), {}, op);
+  }
+  assert.strictEqual(snapshot.readSteps(rU).length, before);
+  // another server's tool with the same name is still an ordinary MCP call
+  await call('mcp__other__sparkguard_undo', { cwd: rU });
+  assert.strictEqual(snapshot.readSteps(rU).length, before + 1);
+});
