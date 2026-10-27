@@ -44,22 +44,10 @@ This is a measured problem, not an anecdote. On file-deletion tasks, a casual re
 
 ## How it works
 
-```mermaid
-flowchart LR
-    U["You type a message"] --> G{"Sounds like a rule,<br/>a yes, or names a file?"}
-    G -- "clearly a rule / a yes" --> R["Muse Spark routes it<br/>(before the agent starts)"]
-    G -- "softer phrasing / names a file" --> B["Muse Spark routes it<br/>in the background (adds rules only)"]
-    R --> S[("Rules: your words,<br/>date, session")]
-    B --> S
-    A["Agent is about to run a tool"] --> M{"Local matcher<br/>~30 ms"}
-    S --> M
-    M -- "exact match" --> D["Deny, quoting your rule"]
-    M -- "maybe" --> J["Muse Spark referee<br/>sees only the call"]
-    J -- "breaks a rule" --> D
-    J -- "fine" --> W["Snapshot, then run"]
-    M -- "no rule involved" --> W
-    W --> UN["/undo restores files"]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/flow-dark.png">
+  <img src="assets/flow-light.png" alt="You talk: your plain-words rule goes to the Muse Spark router and is stored as rule r1 with your words, the date and the session, optionally synced through Bilinc. Agent acts: each tool call goes to the local matcher (about 30 ms, no network); an exact match is denied with your rule quoted, a possible match goes to the Muse Spark referee, which denies or allows, and a call with no rule involved is snapshotted and run, so /undo can restore files." width="100%">
+</picture>
 
 | Moment | What Sparkguard does | Meta model |
 |---|---|---|
