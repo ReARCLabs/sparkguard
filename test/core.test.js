@@ -179,3 +179,33 @@ test('bypass routes: inline code, nested shell and MCP writes are guarded (offli
   assert.deepStrictEqual(await run('bash', { command: "node -e \"console.log(1+1)\"" }), {});
   assert.deepStrictEqual(await run('mcp__fs__read_file', { path: 'data/exports/q1.csv' }), {});
 });
+
+test('deleting a parent, cd, xargs, globs and git clean are guarded; copies out are not (offline)', async () => {
+  const r6 = path.join(tmp, 'parents');
+  fs.mkdirSync(path.join(r6, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(r6, 'data', 'exports'), { recursive: true });
+  fs.mkdirSync(path.join(r6, 'tmp'), { recursive: true });
+  await userPromptSubmit({ prompt: 'Never delete anything in data/exports.', cwd: r6, session_id: 's-p' });
+  const run = (command) => preToolUse({ tool_name: 'bash', tool_input: { command }, cwd: r6, session_id: 's-p', tool_use_id: `p${Math.random()}` });
+  for (const c of [
+    'rm -rf data',
+    'rm -rf .',
+    'rm -rf data/ex*',
+    'cd data && rm -rf exports',
+    "sh -c 'cd data; rm -rf exports'",
+    "find data -name '*.csv' -delete",
+    'git clean -fdx',
+    'ls data/exports | xargs -I{} rm data/exports/{}',
+    'tar czf x.tgz data/exports --remove-files',
+    'mv data /tmp/old-data',
+    'rm -rf "$PWD/data/exports"',
+  ]) assert.ok(denied(await run(c)), c);
+  for (const c of [
+    'cp data/exports/q1.csv /tmp/backup.csv',
+    'rm -rf tmp',
+    'git clean -fd tmp',
+    'mkdir -p data/new',
+    'rm -rf data/other',
+    'tar czf /tmp/backup.tgz data/exports',
+  ]) assert.deepStrictEqual(await run(c), {}, c);
+});

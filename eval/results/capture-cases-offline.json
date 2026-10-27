@@ -1,0 +1,529 @@
+{
+  "summary": {
+    "mode": "offline heuristic",
+    "set": "cases",
+    "cases": 40,
+    "precision": 1,
+    "recall": 0.7,
+    "scope_correct_of_captured": "14/14",
+    "false_positives": 0,
+    "median_ms": 16,
+    "spent_usd": 0
+  },
+  "rows": [
+    {
+      "i": 1,
+      "text": "Never touch prisma/migrations, ask me first.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 50,
+      "rule": {
+        "paths": [
+          "prisma/migrations"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Never touch prisma/migrations, ask me first.\"."
+    },
+    {
+      "i": 2,
+      "text": "Don't ever delete anything in data/exports, that's our client archive.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 37,
+      "rule": {
+        "paths": [
+          "t ever delete anything in data/exports, that",
+          "data/exports"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Don't ever delete anything in data/exports, that's our client archive.\"."
+    },
+    {
+      "i": 3,
+      "text": "Do not run git push --force on this repo. Ever.",
+      "expected": true,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 4,
+      "text": "Leave the billing service alone unless I say so.",
+      "expected": true,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 5,
+      "text": "Under no circumstances modify .env or anything in secrets/.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 32,
+      "rule": {
+        "paths": [
+          ".env",
+          "secrets"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Under no circumstances modify .env or anything in secrets/.\"."
+    },
+    {
+      "i": 6,
+      "text": "The logs folder is needed for our SOC2 audit, it must never be deleted.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 33,
+      "rule": {
+        "paths": [
+          "logs"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"The logs folder is needed for our SOC2 audit, it must never be deleted.\"."
+    },
+    {
+      "i": 7,
+      "text": "src/report.js is used by finance every month, never rewrite it without asking me.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 31,
+      "rule": {
+        "paths": [
+          "src/report.js"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"src/report.js is used by finance every month, never rewrite it without asking me.\"."
+    },
+    {
+      "i": 8,
+      "text": "Absolutely never push to main without asking me first.",
+      "expected": true,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 9,
+      "text": "Keep vendor/ untouched, those are patched third-party libs.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 32,
+      "rule": {
+        "paths": [
+          "vendor"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Keep vendor/ untouched, those are patched third-party libs.\"."
+    },
+    {
+      "i": 10,
+      "text": "Don't drop any database tables, we have no backups yet.",
+      "expected": true,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 11,
+      "text": "Please never edit the generated files in api/generated, they get overwritten.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 31,
+      "rule": {
+        "paths": [
+          "api/generated"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Please never edit the generated files in api/generated, they get overwritten.\"."
+    },
+    {
+      "i": 12,
+      "text": "Hands off infra/terraform, ops owns that.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 32,
+      "rule": {
+        "paths": [
+          "infra/terraform"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Hands off infra/terraform, ops owns that.\"."
+    },
+    {
+      "i": 13,
+      "text": "Never run npm publish from this machine.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 33,
+      "rule": {
+        "paths": [],
+        "commands": [
+          "npm publish"
+        ],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Never run npm publish from this machine.\"."
+    },
+    {
+      "i": 14,
+      "text": "From now on, do not delete any migration files.",
+      "expected": true,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 15,
+      "text": "The fixtures in test/fixtures are golden files, don't change them.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 34,
+      "rule": {
+        "paths": [
+          "test/fixtures"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"The fixtures in test/fixtures are golden files, don't change them.\"."
+    },
+    {
+      "i": 16,
+      "text": "Stop deleting my notes in docs/notes, I need them.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 30,
+      "rule": {
+        "paths": [
+          "docs/notes"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Stop deleting my notes in docs/notes, I need them.\"."
+    },
+    {
+      "i": 17,
+      "text": "Never commit directly to the release branch.",
+      "expected": true,
+      "got": false,
+      "scoped": null,
+      "ms": 15,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 18,
+      "text": "assets/brand is off-limits, the designer owns it.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 36,
+      "rule": {
+        "paths": [
+          "assets/brand"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"assets/brand is off-limits, the designer owns it.\"."
+    },
+    {
+      "i": 19,
+      "text": "Don't touch package-lock.json unless I ask.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 30,
+      "rule": {
+        "paths": [
+          "package-lock.json"
+        ],
+        "commands": [],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Don't touch package-lock.json unless I ask.\"."
+    },
+    {
+      "i": 20,
+      "text": "Never run terraform destroy, not even in staging.",
+      "expected": true,
+      "got": true,
+      "scoped": true,
+      "ms": 34,
+      "rule": {
+        "paths": [],
+        "commands": [
+          "terraform destroy"
+        ],
+        "keywords": [],
+        "about": null,
+        "via": "heuristic"
+      },
+      "said": "Sparkguard recorded rule r1: \"Never run terraform destroy, not even in staging.\"."
+    },
+    {
+      "i": 21,
+      "text": "Don't worry about the failing lint warnings for now.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 18,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 22,
+      "text": "Fix the bug in src/math.js so add() returns a + b.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 17,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 23,
+      "text": "Don't forget to update the README after the change.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 24,
+      "text": "Can you delete the tmp folder? We don't need it.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 25,
+      "text": "Never mind, use the old approach instead.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 26,
+      "text": "I don't like long functions, keep them short.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 27,
+      "text": "Should we ever delete old logs?",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 28,
+      "text": "Don't bother writing tests for this prototype.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 29,
+      "text": "You never told me what the build error was.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 15,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 30,
+      "text": "Remove the unused imports in src/app.ts.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 31,
+      "text": "We never use tabs in this codebase, use spaces.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 32,
+      "text": "Don't stop until all tests pass.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 17,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 33,
+      "text": "It's fine to delete build/ whenever you need to.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 15,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 34,
+      "text": "Last week I accidentally deleted the docs folder, can you restore it from git?",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 15,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 35,
+      "text": "Don't explain, just show me the diff.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 36,
+      "text": "Rename utils.js to helpers.js and update the imports.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 15,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 37,
+      "text": "Never use any as a type in TypeScript.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 38,
+      "text": "Don't rush, take your time with the refactor.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 39,
+      "text": "Please run the tests and tell me what fails.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 15,
+      "rule": null,
+      "said": null
+    },
+    {
+      "i": 40,
+      "text": "Never say never, but let's skip the migration for this sprint.",
+      "expected": false,
+      "got": false,
+      "scoped": null,
+      "ms": 16,
+      "rule": null,
+      "said": null
+    }
+  ]
+}

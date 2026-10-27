@@ -1,0 +1,23 @@
+[
+  {"text": "Nobody should be modifying the CI config in .github/workflows without my sign-off.", "rule": true, "paths": [".github/workflows"]},
+  {"text": "Please keep the seed data in db/seeds intact, QA relies on it.", "rule": true, "paths": ["db/seeds"]},
+  {"text": "I really don't want anyone running docker system prune on this box.", "rule": true, "commands": ["docker system prune"]},
+  {"text": "Treat the uploads directory as read-only.", "rule": true, "paths": ["uploads"]},
+  {"text": "You are not allowed to delete branches on the remote.", "rule": true, "commands": ["git push"]},
+  {"text": "Don't you dare reformat the legacy/ folder, it breaks the diff history.", "rule": true, "paths": ["legacy"]},
+  {"text": "The payments module is off limits for this whole project.", "rule": true, "keywords": ["payments"]},
+  {"text": "Stop touching the Dockerfile, it's tuned for our cluster.", "rule": true, "paths": ["Dockerfile"]},
+  {"text": "Never rotate or regenerate the keys in config/keys.", "rule": true, "paths": ["config/keys"]},
+  {"text": "Always ask before you run kubectl delete on anything.", "rule": true, "commands": ["kubectl delete"]},
+
+  {"text": "Can you check whether the uploads directory is read-only right now?", "rule": false},
+  {"text": "Don't use semicolons in the new file.", "rule": false},
+  {"text": "Delete the old branches that were merged last month.", "rule": false},
+  {"text": "Keep the answer short.", "rule": false},
+  {"text": "I never got the email with the deploy logs.", "rule": false},
+  {"text": "Please stop the dev server and restart it.", "rule": false},
+  {"text": "Make legacy/parser.js read-only friendly by removing the global state.", "rule": false},
+  {"text": "Don't worry about Windows support yet.", "rule": false},
+  {"text": "Why did the payments test fail?", "rule": false},
+  {"text": "We shouldn't have merged that PR, can you revert it?", "rule": false}
+]
